@@ -10,6 +10,28 @@ def get_colab_content():
     return notebook_dict
 
 
+def get_notebook_name():
+    import os
+    import requests
+    import urllib.parse
+
+    # Construct the local Jupyter API URL using environment variables
+    jupyter_ip = os.environ.get("COLAB_JUPYTER_IP", "172.28.0.2")
+    jupyter_port = os.environ.get("KMP_TARGET_PORT", "9000")
+    session_url = f'http://{jupyter_ip}:{jupyter_port}/api/sessions'
+
+    # Fetch the session data
+    response = requests.get(session_url)
+    session_data = response.json()
+
+    # Extract and decode the notebook name
+    notebook_name = session_data[0]['name']
+    notebook_name = urllib.parse.unquote(notebook_name)
+
+    return notebook_name
+
+
+
 def write_colab(cache):
     from IPython import get_ipython
     notebook_globals = get_ipython().user_ns
@@ -41,7 +63,7 @@ def write_colab(cache):
                     "description": "nbcache gist for variables: " + ", ".join(r.keys()),
                     "public": False,  # still viewable by anyone with the URL, just not listed/searchable
                     "files": {
-                        content['metadata']['colab']['name']: {
+                        get_notebook_name(): {
                             "content": json.dumps(content, indent = 4)
                         }
                     }
@@ -55,7 +77,7 @@ def write_colab(cache):
                 print(
                     {
                         "gist_id": gist["id"],
-                        "raw_url": gist["files"][content['metadata']['colab']['name']]["raw_url"],
+                        "raw_url": gist["files"][get_notebook_name()]["raw_url"],
                         "html_url": gist["html_url"]
                     }
                 )
