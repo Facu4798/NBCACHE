@@ -1,0 +1,63 @@
+name: Bump version
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump patch version in pyproject.toml and __init__.py
+        run: |
+          python3 - <<'EOF'
+          import re
+
+          toml_path = "pyproject.toml"
+          with open(toml_path) as f:
+              content = f.read()
+
+          match = re.search(r'^version = "(\d+)\.(\d+)\.(\d+)"$', content, re.MULTILINE)
+          if not match:
+              raise SystemExit("Could not find version field in pyproject.toml")
+
+          major, minor, patch = (int(x) for x in match.groups())
+          new_version = f"{major}.{minor}.{patch + 1}"
+          content = content[:match.start()] + f'version = "{new_version}"' + content[match.end():]
+
+          with open(toml_path, "w") as f:
+              f.write(content)
+
+          init_path = "src/nbcache/__init__.py"
+          with open(init_path) as f:
+              init_content = f.read()
+
+          init_match = re.search(r'^__version__ = "(\d+)\.(\d+)\.(\d+)"$', init_content, re.MULTILINE)
+          if not init_match:
+              raise SystemExit(f"Could not find __version__ field in {init_path}")
+
+          init_content = init_content[:init_match.start()] + f'__version__ = "{new_version}"' + init_content[init_match.end():]
+
+          with open(init_path, "w") as f:
+              f.write(init_content)
+
+          print(f"Bumped version to {new_version}")
+          EOF
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml src/nbcache/__init__.py
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: bump version [skip ci]"
+          git push
