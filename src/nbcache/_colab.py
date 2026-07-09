@@ -29,7 +29,11 @@ def write_colab(cache):
                     if cache.log_failures:
                         r[var] = f"Variable {var} is not JSON serializable"
 
-                content['metadata']['nbcache'] = r
+                try:
+                    content['metadata']['nbcache'] = r
+                except:
+                    content['metadata'] = {}
+                    content['metadata']['nbcache'] = r
 
                 # send content variable to github gist 
 
