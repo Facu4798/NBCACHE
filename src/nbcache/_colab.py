@@ -52,5 +52,8 @@ def write_colab(cache):
                         "html_url": gist["html_url"]
                     }
                 )
+            
+            else:
+                raise ValueError(f"Missing mode or mode {cache.mode} is not supported.")
 
             
