@@ -11,16 +11,19 @@ def get_colab_content():
 
 
 def write_colab(cache):
+    from IPython import get_ipython
+    notebook_globals = get_ipython().user_ns
+
     r  = {}
     for var in cache.vars:
-        if var in globals():
+        if var in notebook_globals:
 
             if cache.mode == "json":
 
                 content = get_colab_content()
 
-                if is_json_serializable(globals()[var]):
-                    r[var] = globals()[var]
+                if is_json_serializable(notebook_globals[var]):
+                    r[var] = notebook_globals[var]
                 else:
                     cache.failures.append(var)
                     if cache.log_failures:
