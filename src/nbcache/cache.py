@@ -1,7 +1,7 @@
-from detectors import *
-# from _local import write_local
-from _colab import write_colab
-# from _databricks import write_databricks
+from .detectors import *
+# from ._local import write_local
+from ._colab import write_colab
+# from ._databricks import write_databricks
 
 class Cache():
 
@@ -14,6 +14,11 @@ class Cache():
         self.enable_pickle = False
         self.failures = []
         self.mode = "json"
+        self.log_failures = False
+
+    def log_failures(self):
+        self.log_failures = True
+        return self
 
 
     def option(self, key, value):
@@ -43,8 +48,8 @@ class Cache():
     def write(self):
         if self.env == "colab":
             write_colab(self)
-        elif self.env == "databricks":
-            write_databricks(self)
-        else:
-            write_local(self)
+        # elif self.env == "databricks":
+        #     write_databricks(self)
+        # else:
+        #     write_local(self)
         return self

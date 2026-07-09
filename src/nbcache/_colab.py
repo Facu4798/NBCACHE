@@ -1,6 +1,6 @@
 import json
 
-from utils import is_json_serializable
+from .utils import is_json_serializable
 
 
 def get_colab_content():
