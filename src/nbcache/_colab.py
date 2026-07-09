@@ -55,5 +55,8 @@ def write_colab(cache):
             
             else:
                 raise ValueError(f"Missing mode or mode {cache.mode} is not supported.")
+            
+        else:
+            raise ValueError(f"Variable {var} is not defined in the global scope.")
 
             
