@@ -7,7 +7,7 @@ def get_colab_content():
     from google.colab import _message
     import json
     notebook_dict = _message.blocking_request('get_ipynb', request='', timeout_sec=5000)
-    return notebook_dict
+    return notebook_dict['ipynb']
 
 
 def get_notebook_name():
