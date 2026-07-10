@@ -63,3 +63,8 @@ class Cache():
     def load(self):
         if self.env == "colab":
             load_colab(self)
+        # elif self.env == "databricks":
+        #     load_databricks(self)
+        # else:
+        #     load_local(self)
+        return self
