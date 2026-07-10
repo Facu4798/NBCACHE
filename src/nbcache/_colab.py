@@ -87,5 +87,17 @@ def write_colab(cache):
             
         else:
             raise ValueError(f"Variable {var} is not defined in the global scope.")
+        
+
+def load_colab(cache):
+    content = get_colab_content()
+    if 'metadata' in content and 'nbcache' in content['metadata']:
+        # create the variables in the global scope
+        from IPython import get_ipython
+        notebook_globals = get_ipython().user_ns
+
+        for var, value in content['metadata']['nbcache'].items():
+            if var in cache.vars:
+                notebook_globals[var] = value
 
             

@@ -1,6 +1,6 @@
 from .detectors import *
 # from ._local import write_local
-from ._colab import write_colab
+from ._colab import write_colab, load_colab
 # from ._databricks import write_databricks
 
 class Cache():
@@ -11,7 +11,7 @@ class Cache():
                 setattr(self, key, value)
             except:
                 pass
-            
+
         self.vars = []
         self.email = None
         self.email_password = None
@@ -59,3 +59,7 @@ class Cache():
         # else:
         #     write_local(self)
         return self
+    
+    def load(self):
+        if self.env == "colab":
+            load_colab(self)
