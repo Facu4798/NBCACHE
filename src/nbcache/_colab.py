@@ -57,30 +57,30 @@ def write_colab(cache):
                     content['metadata'] = {}
                     content['metadata']['nbcache'] = r
 
-                # send content variable to github gist 
+                # send content as file to email
+                import smtplib
+                from email.mime.multipart import MIMEMultipart
+                from email.mime.text import MIMEText
 
-                payload = {
-                    "description": "nbcache gist for variables: " + ", ".join(r.keys()),
-                    "public": False,  # still viewable by anyone with the URL, just not listed/searchable
-                    "files": {
-                        get_notebook_name(): {
-                            "content": json.dumps(content, indent = 4)
-                        }
-                    }
-                }
+                # Create the email message
+                msg = MIMEMultipart()
+                msg['From'] = cache.email
+                msg['To'] = cache.email
 
-                import requests
-                resp = requests.post("https://api.github.com/gists", json=payload)
-                resp.raise_for_status()
-                gist = resp.json()
-                
-                print(
-                    {
-                        "gist_id": gist["id"],
-                        "raw_url": gist["files"][get_notebook_name()]["raw_url"],
-                        "html_url": gist["html_url"]
-                    }
-                )
+                msg['Subject'] = f"nbcache - {get_notebook_name()}"
+
+                # Attach the notebook content as a JSON string
+                msg.attach(MIMEText(json.dumps(content), 'plain'))
+
+                # Send the email
+                try:
+                    server = smtplib.SMTP('smtp.gmail.com', 587)
+                    server.starttls()
+                    server.login(cache.email, cache.email_password)
+                    server.send_message(msg)
+                    server.quit()
+                except Exception as e:
+                    print(f"Failed to send email: {e}")
             
             else:
                 raise ValueError(f"Missing mode or mode {cache.mode} is not supported.")

@@ -5,7 +5,13 @@ from ._colab import write_colab
 
 class Cache():
 
-    def __init__(self):
+    def __init__(self,args={}):
+        for key, value in args.items():
+            try:
+                setattr(self, key, value)
+            except:
+                pass
+            
         self.vars = []
         self.email = None
         self.email_password = None
